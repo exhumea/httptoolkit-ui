@@ -411,8 +411,9 @@ export class PlanPicker extends React.Component<PlanPickerProps> {
                             redirection, mock responses, and errors & timeouts.
                         </Feature>
                         <Feature>
-                            <strong>Reusable Modify & Send tools</strong>. Persistent by default, plus
-                            import/export so you can store, reuse & share your rules & requests.
+                            <strong>Reusable Modify & Send tools</strong>. Persistent by default, with
+                            import/export support and "Resend" and "Create rule from request"
+                            functionality.
                         </Feature>
                         <Feature>
                             <strong>Import/export for all traffic</strong> as <a
@@ -424,20 +425,17 @@ export class PlanPicker extends React.Component<PlanPickerProps> {
                             </a> or ready-to-use code for 20+ tools.
                         </Feature>
                         <Feature>
-                            <strong>Advanced HTTP debugging tools</strong> including compression
-                            & caching analysis, and 'resend' functionality.
-                        </Feature>
-                        <Feature>
-                            <strong>Validation &amp; API documentation for 2600+ built-in APIs</strong>,
-                            from AWS to GitHub to Stripe, plus your own custom <a
+                            <strong>Advanced debugging tools</strong> like MCP integration for AI agents,
+                            compression & caching analysis, and built-in docs for 2600+ popular
+                            APIs & your own <a
                                 href="https://swagger.io/docs/specification/about/"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >OpenAPI</a> specs.
                         </Feature>
                         <Feature>
-                            <strong>Advanced customization</strong>, including UI themes,
-                            whitelisted & client certificates, ports, and upstream proxies.
+                            <strong>Custom configuration</strong> including upstream proxy settings,
+                            whitelisted & client TLS certificates, protocol negotation, and UI themes.
                         </Feature>
                         <Feature>
                             <strong>Support open-source development!</strong>

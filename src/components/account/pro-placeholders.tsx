@@ -69,7 +69,7 @@ export const CardSalesPitch = inject('accountStore')(observer((p: {
     { p.children }
 
     <GetProButton onClick={() => p.accountStore!.getPro(p.source)}>
-        <Icon icon={['far', 'star']} size='2x' />
+        <Icon icon='Lightning' size='2em' />
         Get HTTP Toolkit Pro
     </GetProButton>
 </CardSalesPitchContainer>));
@@ -128,7 +128,7 @@ export class GetProOverlay extends React.Component<{
                 ref={this.buttonRef}
                 onClick={() => this.props.getPro(this.props.source)}
             >
-                <Icon icon={['far', 'star']} size='2x' />
+                <Icon icon='Lightning' size='2em' />
                 Get Pro
             </OverlayGetProButton>
 

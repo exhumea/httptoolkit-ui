@@ -136,6 +136,9 @@ export class ProxyStore {
     @observable
     ruleParameterKeys: string[] = [];
 
+    @observable.ref
+    toolPaths: { [tool: string]: string[] } | undefined;
+
     @observable
     serverVersion!: string; // Definitely set *after* initialization
 
@@ -239,6 +242,7 @@ export class ProxyStore {
             this.systemProxyConfig = config.systemProxy;
             this.dnsServers = config.dnsServers;
             this.ruleParameterKeys = config.ruleParameterKeys;
+            this.toolPaths = config.toolPaths;
             console.log('Config loaded');
         });
 

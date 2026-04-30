@@ -16,6 +16,7 @@ import { useHotkeys, Ctrl } from '../util/ui';
 
 import { AccountStore } from '../model/account/account-store';
 import { UiStore } from '../model/ui/ui-store';
+import { ProxyStore } from '../model/proxy-store';
 import {
     serverVersion,
     versionSatisfies,
@@ -36,6 +37,7 @@ import { PlanPicker } from './account/plan-picker';
 import { CheckoutSpinner } from './account/checkout-spinner';
 import { HtmlContextMenu } from './html-context-menu';
 import { DisconnectedWarning } from './disconnected-warning';
+import { McpModal } from './mcp/mcp-modal';
 
 const AppContainer = styled.div<{ inert?: boolean }>`
     display: flex;
@@ -90,11 +92,19 @@ const AppKeyboardShortcuts = (props: {
 
 @inject('accountStore')
 @inject('uiStore')
+@inject('proxyStore')
 @observer
 class App extends React.Component<{
     accountStore: AccountStore,
-    uiStore: UiStore
+    uiStore: UiStore,
+    proxyStore: ProxyStore
 }> {
+
+    @computed
+    get canUseMcp() {
+        const mcpPath = this.props.proxyStore.toolPaths?.mcp;
+        return !!mcpPath && mcpPath.length > 0;
+    }
 
     @computed
     get canVisitSettings() {
@@ -171,11 +181,23 @@ class App extends React.Component<{
                 : {
                     name: 'Get Pro',
                     title: "Sign up for HTTP Toolkit Pro",
-                    icon: 'Star',
+                    icon: 'Lightning',
                     position: 'bottom',
                     type: 'callback',
                     onClick: () => this.props.accountStore.getPro('sidebar')
                 }
+            ),
+
+            ...(this.canUseMcp
+                ? [{
+                    name: 'MCP',
+                    title: 'Connect HTTP Toolkit to AI assistants via MCP',
+                    icon: 'Sparkle',
+                    position: 'bottom',
+                    type: 'callback',
+                    onClick: this.props.uiStore.openMcpModal
+                }]
+                : []
             ),
 
             {
@@ -260,6 +282,10 @@ class App extends React.Component<{
                 />
             }
 
+            { this.props.uiStore.mcpModalOpen && this.canUseMcp &&
+                <McpModal onClose={this.props.uiStore.closeMcpModal} />
+            }
+
             {
                 contextMenuState &&
                     <HtmlContextMenu
@@ -273,7 +299,7 @@ class App extends React.Component<{
 
 // Annoying cast required to handle the store prop nicely in our types
 const AppWithStoreInjected = (
-    App as unknown as WithInjected<typeof App, 'accountStore' | 'uiStore'>
+    App as unknown as WithInjected<typeof App, 'accountStore' | 'uiStore' | 'proxyStore'>
 );
 
 export { AppWithStoreInjected as App };

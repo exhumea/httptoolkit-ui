@@ -464,6 +464,19 @@ export class UiStore {
     @persist @observable
     exportSnippetFormat: string | undefined;
 
+    @observable
+    mcpModalOpen: boolean = false;
+
+    @action.bound
+    openMcpModal() {
+        this.mcpModalOpen = true;
+    }
+
+    @action.bound
+    closeMcpModal() {
+        this.mcpModalOpen = false;
+    }
+
     // Actions for persisting view state when switching tabs
     @action.bound
     setViewScrollPosition(position: number | 'end') {
