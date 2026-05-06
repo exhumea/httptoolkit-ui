@@ -36,6 +36,7 @@ import { lazyObservablePromise } from '../util/observable';
 import { persist, hydrate } from '../util/mobx-persist/persist';
 import { isValidPort } from './network';
 import { serverVersion } from '../services/service-versions';
+import { getMockttpPort } from '../services/desktop-api';
 
 type HtkAdminClient =
     // WebRTC is only supported for new servers:
@@ -188,7 +189,7 @@ export class ProxyStore {
             http: any,
             webrtc: any
         }>({
-            adminServerUrl: 'http://127.0.0.1:45456',
+            adminServerUrl: `http://127.0.0.1:${getMockttpPort()}`,
             adminStreamReconnectAttempts: Infinity
         });
 

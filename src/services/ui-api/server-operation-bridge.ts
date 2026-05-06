@@ -1,5 +1,6 @@
 import { autorun, IReactionDisposer } from 'mobx';
 import { AccountStore } from '../../model/account/account-store';
+import { getServerPort } from '../desktop-api';
 import { OperationRegistry } from './api-registry';
 
 const RECONNECT_BASE_MS = 1_000;
@@ -16,7 +17,7 @@ export function startServerOperationBridge(
     let disposers: IReactionDisposer[] = [];
 
     function connect() {
-        const url = `ws://127.0.0.1:45457/ui-operations`;
+        const url = `ws://127.0.0.1:${getServerPort()}/ui-operations`;
 
         try {
             ws = new WebSocket(url);

@@ -34,6 +34,8 @@ interface DesktopApi {
 
     getDesktopVersion?: () => string | undefined;
     getServerAuthToken?: () => string | undefined;
+    getServerPort?: () => number | undefined;
+    getMockttpPort?: () => number | undefined;
     getDeviceInfo?: () => {
         platform?: string;
         release?: string;
@@ -91,6 +93,15 @@ const global = typeof globalThis !== 'undefined'
     : {} as Window;
 
 export const DesktopApi: DesktopApi = global.desktopApi ?? {};
+
+const DEFAULT_SERVER_PORT = 45457;
+const DEFAULT_MOCKTTP_PORT = 45456;
+
+export const getServerPort = (): number =>
+    DesktopApi.getServerPort?.() ?? DEFAULT_SERVER_PORT;
+
+export const getMockttpPort = (): number =>
+    DesktopApi.getMockttpPort?.() ?? DEFAULT_MOCKTTP_PORT;
 
 export function canRestartApp(): boolean {
     return window.desktopApi?.restartApp !== undefined ||
