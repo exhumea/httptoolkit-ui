@@ -336,7 +336,10 @@ export class EventsStore {
         // Due to race conditions, it's possible this request already exists. If so,
         // we just skip this - the existing data will be more up to date.
         const existingEvent = this.eventsList.getById(request.id);
-        if (existingEvent) return;
+        if (existingEvent) {
+            logError('Duplicate event received', { eventType: 'request-initiated', id: request.id });
+            return;
+        }
 
         const exchange = new HttpExchange(request, this.apiStore);
         this.eventsList.push(exchange);
@@ -404,6 +407,11 @@ export class EventsStore {
 
     @action
     private addWebSocketRequest(request: InputCompletedRequest) {
+        if (this.eventsList.getById(request.id)) {
+            logError('Duplicate event received', { eventType: 'websocket-request', id: request.id });
+            return;
+        }
+
         const stream = new WebSocketStream({ ...request }, this.apiStore);
         // ^ This mutates request to use it, so we have to shallow-clone to use it below too
 
@@ -458,6 +466,10 @@ export class EventsStore {
 
     @action
     private addTlsTunnel(openEvent: InputTlsPassthrough) {
+        if (this.eventsList.getById(openEvent.id)) {
+            logError('Duplicate event received', { eventType: 'tls-passthrough-opened', id: openEvent.id });
+            return;
+        }
         this.eventsList.push(new TlsTunnel(openEvent));
     }
 
@@ -478,6 +490,10 @@ export class EventsStore {
 
     @action
     private addRawTunnel(openEvent: InputRawPassthrough) {
+        if (this.eventsList.getById(openEvent.id)) {
+            logError('Duplicate event received', { eventType: 'raw-passthrough-opened', id: openEvent.id });
+            return;
+        }
         const tunnel = new RawTunnel(openEvent);
         this.eventsList.push(tunnel);
     }
@@ -514,14 +530,21 @@ export class EventsStore {
 
     @action
     private addFailedTlsRequest(request: InputTlsFailure) {
+        const upstreamHostname = (
+            request.tlsMetadata.sniHostname ??
+            request.destination?.hostname ??
+            request.hostname
+        );
         if (this.tlsFailures.some((failure) =>
-            failure.upstreamHostname === (
-                request.tlsMetadata.sniHostname ??
-                request.destination?.hostname ??
-                request.hostname
-            ) &&
+            failure.upstreamHostname === upstreamHostname &&
             failure.remoteIpAddress === request.remoteIpAddress
-        )) return; // Drop duplicate TLS failures
+        )) {
+            logError('Duplicate event received', {
+                eventType: 'tls-client-error',
+                remoteIpAddress: request.remoteIpAddress
+            });
+            return; // Drop duplicate TLS failures
+        }
 
         this.eventsList.push(new FailedTlsConnection(request));
     }
@@ -537,6 +560,11 @@ export class EventsStore {
         if (error.errorCode === 'ERR_SSL_DECRYPTION_FAILED_OR_BAD_RECORD_MAC') {
             // The TLS connection was interrupted by a bad packet. Generally paired with
             // an abort event for ongoing requests, so no need for a separate error.
+            return;
+        }
+
+        if (this.eventsList.getById(error.request.id)) {
+            logError('Duplicate event received', { eventType: 'client-error', id: error.request.id });
             return;
         }
 
@@ -596,6 +624,10 @@ export class EventsStore {
 
     @action
     private addRTCPeerConnection(event: InputRTCPeerConnected) {
+        if (this.eventsList.getById(event.sessionId)) {
+            logError('Duplicate event received', { eventType: 'peer-connected', id: event.sessionId });
+            return;
+        }
         this.eventsList.push(new RTCConnection(event));
     }
 
@@ -626,6 +658,11 @@ export class EventsStore {
     private addRTCDataChannel(event: InputRTCDataChannelOpened) {
         const conn = this.eventsList.getRTCConnectionById(event.sessionId);
         if (conn) {
+            const dcId = event.sessionId + ':data:' + event.channelId;
+            if (this.eventsList.getById(dcId)) {
+                logError('Duplicate event received', { eventType: 'data-channel-opened', id: dcId });
+                return;
+            }
             const dc = new RTCDataChannel(event, conn);
             this.eventsList.push(dc);
             conn.addStream(dc);
@@ -658,6 +695,11 @@ export class EventsStore {
     private addRTCMediaTrack(event: InputRTCMediaTrackOpened) {
         const conn = this.eventsList.getRTCConnectionById(event.sessionId);
         if (conn) {
+            const trackId = event.sessionId + ':media:' + event.trackMid;
+            if (this.eventsList.getById(trackId)) {
+                logError('Duplicate event received', { eventType: 'media-track-opened', id: trackId });
+                return;
+            }
             const track = new RTCMediaTrack(event, conn);
             this.eventsList.push(track);
             conn.addStream(track);
