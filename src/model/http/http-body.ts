@@ -215,7 +215,7 @@ export class HttpBody implements MessageBody {
 
             return decoded;
         } catch (e: any) {
-            logError(e);
+            console.log('Body decoding failed', e);
 
             runInAction(() => {
                 if (e.inputBuffer) {
