@@ -539,11 +539,10 @@ export class EventsStore {
             failure.upstreamHostname === upstreamHostname &&
             failure.remoteIpAddress === request.remoteIpAddress
         )) {
-            logError('Duplicate event received', {
-                eventType: 'tls-client-error',
-                remoteIpAddress: request.remoteIpAddress
-            });
-            return; // Drop duplicate TLS failures
+            // Drop duplicate TLS failures for the same hostname.
+            // These are real events but too noisy (clients retry automatically)
+            // so we only store & show the first one.
+            return;
         }
 
         this.eventsList.push(new FailedTlsConnection(request));
