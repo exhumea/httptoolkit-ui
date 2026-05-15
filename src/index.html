@@ -63,7 +63,7 @@
     <script>
         const bgColor = localStorage.getItem('theme-background-color') || (
             // Use dark/light theme containerBackground
-            window.matchMedia("(prefers-color-scheme: dark)")
+            window.matchMedia("(prefers-color-scheme: dark)").matches
                 ? '#1e2028'
                 : '#e4e8ed'
         );
